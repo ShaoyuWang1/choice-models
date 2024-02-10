@@ -2,6 +2,9 @@
 # Berbeglia, G., Garassino, A., & Vulcano, G. (2018). A comparative empirical study of discrete choice models in retail operations. Available at SSRN 3136816.
 
 from python_choice_models.estimation.market_explore import MarketExplorer
+
+# from python_choice_models.estimation.expectation_maximization.ranked_list import RankedListExpectationMaximizationEstimator
+
 from python_choice_models.optimization.linear import LinearProblem, LinearSolver
 from copy import deepcopy
 
@@ -29,9 +32,9 @@ class MIPMarketExplorer(MarketExplorer):
     def code(cls):
         return 'mip'
 
-    def explore_for(self, estimator, model, transactions):
+    def explore_for(self, model, transactions):
         problem = MIPMarketExploreLinearProblem(model, transactions)
-        final_solutions = LinearSolver().solve(problem, estimator.profiler())
+        final_solutions = LinearSolver().solve(problem, self.profiler())
 
         ranked_lists = []
         for objective_value, values in final_solutions:
@@ -39,6 +42,18 @@ class MIPMarketExplorer(MarketExplorer):
             for j in model.products:
                 position = sum([values['x_%s_%s' % (i, j)] for i in model.products if i != j])
                 new_ranked_list[int(position)] = j
+
+                   
+
+           
+            # Correct data error:
+            for i in range(len(new_ranked_list)):
+                missing_value = [j for j in range(len(model.products)) if j not in new_ranked_list ]
+                k = 0
+                while new_ranked_list.count(0) > 1:
+                    new_ranked_list[new_ranked_list.index(0)] = missing_value[k]
+                    k+=1
+
             ranked_lists.append(new_ranked_list)
         return ranked_lists
 
@@ -53,7 +68,7 @@ class MIPMarketExploreLinearProblem(LinearProblem):
 
     def objective_coefficients(self):
         coefficients = [0.0 for _ in self.model.products for _ in self.model.products]
-        return coefficients + [1 / self.model.probability_of(t) for t in self.transactions]
+        return coefficients + [1 / (self.model.probability_of(t)+0.00000000000001)for t in self.transactions]
 
     def lower_bounds(self):
         lower = [0.0] * self.amount_of_variables()

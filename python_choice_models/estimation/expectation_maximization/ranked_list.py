@@ -16,5 +16,9 @@ class RankedListExpectationMaximizationEstimator(ExpectationMaximizationEstimato
                 x[i][t] = model.beta_for(i) / den
 
         m = [sum(x[i]) for i in range(len(model.ranked_lists))]
-        model.set_betas([m[i] / sum(m) for i in range(len(model.ranked_lists))])
+
+        if (sum(m)==0):
+            model.set_betas([1/len(model.ranked_lists) for i in range(len(model.ranked_lists))])
+        else:
+            model.set_betas([m[i] / sum(m) for i in range(len(model.ranked_lists))])
         return model

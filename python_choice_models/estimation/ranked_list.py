@@ -21,16 +21,22 @@ class RankedListEstimator(Estimator):
     def estimate(self, model, transactions):
         raise NotImplementedError('Subclass responsibility')
 
-    def estimate_with_market_discovery(self, model, transactions):
+    def estimate_with_market_discovery(self, model, transactions,rank_num_limit=9999):
         model = self.estimate(model, transactions)
         new_ranked_lists = self.market_explorer.explore_for(self, model, transactions)
         add, new_model = self.is_worth_adding(model, new_ranked_lists, transactions)
 
         while add and self.profiler().duration() < 1800.0:
+
             model = new_model
-            print(('Adding list... amount of lists %s' % len(model.all_betas())))
+            # print(('Adding list... amount of lists %s' % len(model.all_betas())))
             new_ranked_lists = self.market_explorer.explore_for(self, model, transactions)
             add, new_model = self.is_worth_adding(model, new_ranked_lists, transactions)
+            
+            # Market Explore with no more than rank_num_limit
+            if len(model.all_betas())>rank_num_limit:
+                add = False
+                # print("Limit")
 
         return model
 

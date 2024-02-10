@@ -25,8 +25,8 @@ class MultinomialLogitModel(Model):
         return cls(products, generate_n_equal_numbers_that_sum_one(len(products) - 1))
 
     @classmethod
-    def simple_random(cls, products):
-        return cls(products, generate_n_random_numbers_that_sum_m(len(products) - 1, 2))
+    def simple_random(cls, products,m=2):
+        return cls(products, generate_n_random_numbers_that_sum_m(len(products) - 1, m))
 
     def __init__(self, products, etas):
         super(MultinomialLogitModel, self).__init__(products)

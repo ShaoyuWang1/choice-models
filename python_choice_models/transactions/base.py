@@ -48,6 +48,11 @@ class TransactionGenerator(object):
 
     def generate_transaction_for(self, offered_products):
         distribution = self.model.probability_distribution_over(offered_products)
+        
+        
+        # normalize all the pvals
+        distribution = [distribution[i]/sum(distribution) for i in range(len(distribution))]
+            
         purchased_product = list(numpy.random.multinomial(1, distribution, 1)[0]).index(1)
         return Transaction(purchased_product, offered_products)
 
@@ -88,10 +93,14 @@ class OfferedProductsGenerator(object):
 
     def generate_offered_products(self, offering_probability=0.5):
         offered_products = [0]
-        for i in range(1, len(self.products)):
-            is_offered = random.uniform(0, 1) < offering_probability
-            if is_offered:
-                offered_products.append(i)
+        # make sure no empty sets!
+        while offered_products == [0]:  
+            for i in range(1, len(self.products)):
+                is_offered = random.uniform(0, 1) < offering_probability
+                if is_offered:
+                    offered_products.append(i)
+        
+            
         return offered_products
 
 

@@ -60,9 +60,9 @@ class LinearSolver(object):
 
         problem.solve()
 
-        print('')
-        print(('MIP Finished: %s' % problem.solution.get_status_string()))
-        print('')
+        # print('')
+        # print(('MIP Finished: %s' % problem.solution.get_status_string()))
+        # print('')
 
         amount_solutions = 3
         solution_pool = problem.solution.pool
